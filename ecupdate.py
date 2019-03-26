@@ -18,10 +18,8 @@ client = commands.Bot(command_prefix = '!')
 async def update_score():
     await client.wait_until_ready()
     score = ''
-    new_score = ''
     while not client.is_closed:
         try:
-            k=4+'k'
             driver = webdriver.Chrome()
             driver.get('https://vtr.elections.nsw.gov.au/lc/state/cc/fp_summary')
             time.sleep(2)
