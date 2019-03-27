@@ -79,7 +79,7 @@ async def update_votes_inner():
     print(discord_msg)
 
     await client.send_message(discord.Object('560067038349885441'), discord_msg)
-
+    
 
 async def update_score():
     await client.wait_until_ready()
@@ -92,5 +92,6 @@ async def update_score():
         traceback.print_tb(e.__traceback__)
     await client.close()
 
+    
 client.loop.create_task(update_score())
 client.run(TOKEN)
