@@ -1,4 +1,4 @@
-print("Flux Discord Bot")
+import os
 import discord
 from discord.ext import commands
 import asyncio
@@ -11,7 +11,7 @@ import pandas as pd
 
 
 
-TOKEN = 'NTYwMDY3OTMyNDExOTIwMzg2.D3ujrQ.ZZc5cyGfwrNjvHKZ4tgSdSR1ZNg'
+TOKEN = os.environ['DISCORD_BOT_TOKEN']
 
 client = commands.Bot(command_prefix = '!')
 
