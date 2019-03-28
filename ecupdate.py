@@ -27,7 +27,7 @@ async def update_votes_inner():
     except Exception as e:
         driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver', chrome_options=chrome_opts)
     driver.get('https://vtr.elections.nsw.gov.au/lc/state/cc/fp_summary')
-    
+
     # let it load; todo: does selenium have an await page load function?
     # let it be a long wait because better than failing
     time.sleep(2)
@@ -35,7 +35,7 @@ async def update_votes_inner():
     # html of page; after it's been modified by JS
     vtr_html = driver.page_source
     vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
-    
+
     # don't need this anymore
     driver.close()
 
@@ -56,13 +56,13 @@ async def update_votes_inner():
             print("diff:", cached_updated, last_updated, sep='|\n')
     with open('__last_updated_tag__.txt', 'w+') as f:
         f.write(last_updated)
-    
+
     # grab the number of votes per quota
     quota_votes = int(list(report_ps[2].strings)[1].replace(',',''))
     # a quota is 4.55% or so; we can use this to figure out pct votes counted
     final_quota_votes = 5 * 10**6 * 0.0455
-    # the * 10000 // 100 thing here will round to 2 dps
-    pct_votes_counted = f'{(quota_votes / final_quota_votes * 10000) // 100} %'
+    # the // thing here will round to 2 dps
+    pct_votes_counted = f'{(quota_votes * 10000 // final_quota_votes ) / 100} %'
 
     print(last_updated, quota_votes, sep=" | ")
 
@@ -75,11 +75,11 @@ async def update_votes_inner():
     new_votes, percent_votes, quotas = [flux_group_table_headings[hdr][16] for hdr in hdrs]
     print(new_votes, percent_votes, quotas, sep=" | ")
 
-    discord_msg = f"**UPDATE:** *Group Total* \nVotes: **{new_votes}** \n% of Votes: **{percent_votes}**\nQuotas: **{quotas}**\n% *all* votes counted **{pct_votes_counted}**"
+    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
     print(discord_msg)
 
     await client.send_message(discord.Object('560067038349885441'), discord_msg)
-    
+
 
 async def update_score():
     await client.wait_until_ready()
@@ -92,6 +92,6 @@ async def update_score():
         traceback.print_tb(e.__traceback__)
     await client.close()
 
-    
+
 client.loop.create_task(update_score())
 client.run(TOKEN)
