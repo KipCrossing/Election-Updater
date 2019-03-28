@@ -61,8 +61,8 @@ async def update_votes_inner():
     quota_votes = int(list(report_ps[2].strings)[1].replace(',',''))
     # a quota is 4.55% or so; we can use this to figure out pct votes counted
     final_quota_votes = 5 * 10**6 * 0.0455
-    # the * 10000 // 100 thing here will round to 2 dps
-    pct_votes_counted = f'{(quota_votes / final_quota_votes * 10000) // 100} %'
+    # the // thing here will round to 2 dps
+    pct_votes_counted = f'{(quota_votes * 10000 // final_quota_votes ) / 100} %'
 
     print(last_updated, quota_votes, sep=" | ")
 
