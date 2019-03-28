@@ -7,4 +7,4 @@ else
   exit 1
 fi
 
-python3 ./ecupdate.py
+watchmedo auto-restart -p '*.py' python3 ecupdate.py

@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', None)
+DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
 client = commands.Bot(command_prefix = '!')
 print('loaded client')
 
@@ -50,7 +51,7 @@ async def update_votes_inner():
     with open('__last_updated_tag__.txt', 'r') as f:
         cached_updated = str(f.read())
         if cached_updated == last_updated:
-            print('no updates; exiting')
+            print('no updates', time.time())
             return
         else:
             print("diff:", cached_updated, last_updated, sep='|\n')
@@ -77,20 +78,30 @@ async def update_votes_inner():
 
     discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
     print(discord_msg)
+    with open('__last_discord_msg__.txt', 'w+') as f:
+        f.write(discord_msg)
 
-    await client.send_message(discord.Object('560067038349885441'), discord_msg)
+    await client.send_message(discord.Object(DISCORD_ROOM), discord_msg)
 
 
 async def update_score():
     await client.wait_until_ready()
     try:
+      while True:
         await update_votes_inner()
+        await asyncio.sleep(58)
     except Exception as e:
         print('Got exception')
         print(e)
         import traceback
         traceback.print_tb(e.__traceback__)
-    await client.close()
+    # await client.close()
+
+
+@client.command()
+async def nswcount():
+    with open('__last_discord_msg__.txt', 'r') as f:
+        await client.say(f.read())
 
 
 client.loop.create_task(update_score())
