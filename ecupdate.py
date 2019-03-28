@@ -18,6 +18,21 @@ client = commands.Bot(command_prefix = '!')
 print('loaded client')
 
 
+def get_stored_value(name):
+  fname = f'__{name}__.txt'
+  try:
+    with open(fname, 'r') as f:
+      return str(f.read())
+  except:
+    return None
+
+
+def set_stored_value(name, val):
+  fname = f'__{name}__.txt'
+  with open(fname, 'w+') as f:
+    f.write(val)
+
+
 async def update_votes_inner():
     chrome_opts = webdriver.ChromeOptions()
     chrome_opts.add_argument('--headless')
@@ -46,17 +61,13 @@ async def update_votes_inner():
     last_updated = report_ps[0].string
 
     # check last updated; create file using a+ first if need be
-    with open('__last_updated_tag__.txt', 'a+') as f:
-        pass
-    with open('__last_updated_tag__.txt', 'r') as f:
-        cached_updated = str(f.read())
-        if cached_updated == last_updated:
-            print('no updates', time.time())
-            return
-        else:
-            print("diff:", cached_updated, last_updated, sep='|\n')
-    with open('__last_updated_tag__.txt', 'w+') as f:
-        f.write(last_updated)
+    cached_updated = get_stored_value('last_updated_tag')
+    if cached_updated == last_updated:
+      print('no updates', time.time())
+      return
+    else:
+      print("diff:", cached_updated, last_updated, sep='|\n')
+    set_stored_value('last_updated_tag', last_updated)
 
     # grab the number of votes per quota
     quota_votes = int(list(report_ps[2].strings)[1].replace(',',''))
@@ -76,10 +87,14 @@ async def update_votes_inner():
     new_votes, percent_votes, quotas = [flux_group_table_headings[hdr][16] for hdr in hdrs]
     print(new_votes, percent_votes, quotas, sep=" | ")
 
-    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
+    quotas_f = float(quotas)
+    max_quota = float(get_stored_value('max_quotas') or '0')
+    if quotas_f > max_quota:
+      set_stored_value('max_quotas', quotas)
+
+    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** (PB: {max_quota}) \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
     print(discord_msg)
-    with open('__last_discord_msg__.txt', 'w+') as f:
-        f.write(discord_msg)
+    set_stored_value('last_discord_msg', discord_msg)
 
     await client.send_message(discord.Object(DISCORD_ROOM), discord_msg)
 
