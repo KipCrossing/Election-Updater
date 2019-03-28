@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mkdir -p log
+
 if [ -e ./.env ]; then
   source .env
 else

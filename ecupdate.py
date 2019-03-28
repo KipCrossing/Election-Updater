@@ -18,17 +18,23 @@ client = commands.Bot(command_prefix = '!')
 print('loaded client')
 
 
-def get_stored_value(name):
+def get_stored_value(name, default=None):
   fname = f'__{name}__.txt'
   try:
     with open(fname, 'r') as f:
-      return str(f.read())
-  except:
-    return None
+      contents = str(f.read())
+      if len(contents) > 0:
+        return contents
+      return default
+  except Exception as e:
+    print(f'[INFO] FYI get_stored_value got exception: str(e)')
+    return default
 
 
-def set_stored_value(name, val):
+def set_stored_value(name, val, subdir=None):
   fname = f'__{name}__.txt'
+  if subdir is not None:
+    fname = f'{subdir}/{fname}'
   with open(fname, 'w+') as f:
     f.write(val)
 
@@ -88,13 +94,15 @@ async def update_votes_inner():
     print(new_votes, percent_votes, quotas, sep=" | ")
 
     quotas_f = float(quotas)
-    max_quota = float(get_stored_value('max_quotas') or '0')
+    max_quota = float(get_stored_value('max_quotas', '0'))
     if quotas_f > max_quota:
-      set_stored_value('max_quotas', quotas)
+      set_stored_value('max_quotas', str(quotas))
 
     discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** (PB: {max_quota}) \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
     print(discord_msg)
     set_stored_value('last_discord_msg', discord_msg)
+
+    set_stored_value(f'log_{int(time.time())}', '\n-----\n'.join(map(str, [discord_msg, new_votes, percent_votes, quotas, last_updated, quota_votes])), subdir='log')
 
     await client.send_message(discord.Object(DISCORD_ROOM), discord_msg)
 
