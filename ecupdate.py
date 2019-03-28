@@ -86,16 +86,18 @@ async def update_votes_inner():
 
 async def update_score():
     await client.wait_until_ready()
-    try:
-      while True:
+    # inf loop
+    while True:
+      try:
         await update_votes_inner()
         await asyncio.sleep(58)
-    except Exception as e:
+      except Exception as e:
         print('Got exception')
         print(e)
         import traceback
         traceback.print_tb(e.__traceback__)
-    # await client.close()
+        print("\n\nwaiting 10s and trying again")
+        await asyncio.sleep(10)
 
 
 @client.command()
