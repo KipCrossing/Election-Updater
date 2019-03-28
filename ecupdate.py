@@ -27,7 +27,7 @@ def get_stored_value(name, default=None):
         return contents
       return default
   except Exception as e:
-    print(f'[INFO] FYI get_stored_value got exception: str(e)')
+    print(f'[INFO] FYI get_stored_value got exception: {str(e)}')
     return default
 
 
