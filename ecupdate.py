@@ -92,6 +92,7 @@ async def update_votes_inner():
     # get last row; total votes and quotas
     new_votes, percent_votes, quotas = [flux_group_table_headings[hdr][16] for hdr in hdrs]
     print(new_votes, percent_votes, quotas, sep=" | ")
+    percent_votes = f'{new_votes * 100000 // quota_votes / 1000 * 0.0455:.3f} %'
 
     quotas_f = float(quotas)
     max_quota = float(get_stored_value('max_quotas', '0'))
