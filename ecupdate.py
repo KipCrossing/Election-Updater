@@ -4,6 +4,7 @@ from itertools import cycle
 import os
 import time
 import sys
+from collections import defaultdict
 
 import discord
 from discord.ext import commands
@@ -15,7 +16,8 @@ from bs4 import BeautifulSoup
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', None)
 DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
 client = commands.Bot(command_prefix = '!')
-print('loaded client')
+star_emoji = '🌟'
+print(f'loaded client {star_emoji}')
 
 
 def get_stored_value(name, default=None):
@@ -40,6 +42,8 @@ def set_stored_value(name, val, subdir=None):
 
 
 async def update_votes_inner():
+    stars = defaultdict(lambda: '')
+
     chrome_opts = webdriver.ChromeOptions()
     chrome_opts.add_argument('--headless')
     chrome_opts.add_argument('--no-sandbox')
@@ -97,9 +101,10 @@ async def update_votes_inner():
     quotas_f = float(quotas)
     max_quota = float(get_stored_value('max_quotas', '0'))
     if quotas_f > max_quota:
+      stars['quota'] = star_emoji
       set_stored_value('max_quotas', str(quotas))
 
-    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** (PB: {max_quota}) \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
+    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** (PB: {max_quota}){stars['quota']} \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
     print(discord_msg)
     set_stored_value('last_discord_msg', discord_msg)
 
