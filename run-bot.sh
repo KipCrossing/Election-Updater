@@ -9,4 +9,14 @@ else
   exit 1
 fi
 
+
+check_for_updates(){
+  sleep 10
+  while ps axo cmd | grep "^python3 ecupdate.py$" > /dev/null; do
+    git pull > /dev/null
+    sleep 15
+  done
+}
+check_for_updates &
+
 watchmedo auto-restart -p '*.py' python3 ecupdate.py

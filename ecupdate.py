@@ -120,8 +120,11 @@ async def update_score():
       try:
         await update_votes_inner()
         await asyncio.sleep(58)
+      except (KeyboardInterrupt, SystemExit) as e:
+        break
+        raise e
       except Exception as e:
-        print('Got exception')
+        print(f'Got exception: {str(e)}')
         print(e)
         import traceback
         traceback.print_tb(e.__traceback__)
