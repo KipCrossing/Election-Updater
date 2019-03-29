@@ -99,7 +99,7 @@ async def update_votes_inner():
     if quotas_f > max_quota:
       set_stored_value('max_quotas', str(quotas))
 
-    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** (PB: {max_quota}) \n NSWEC progress: **{pct_votes_counted}** \n {last_updated}"
+    discord_msg = f"\n Votes: **{new_votes}** \n Primary pct: **{percent_votes}** (goal: 0.5%) \n Quotas: **{quotas}** (PB: {max_quota}) \n NSWEC progress: **{pct_votes_counted}** \n __{last_updated}__"
     print(discord_msg)
     set_stored_value('last_discord_msg', discord_msg)
 
