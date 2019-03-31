@@ -19,4 +19,6 @@ check_for_updates(){
 }
 check_for_updates &
 
-watchmedo auto-restart -p '*.py' python3 ecupdate.py
+while sleep 1; do
+  watchmedo auto-restart -p '*.py' python3 ecupdate.py
+done

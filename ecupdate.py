@@ -115,8 +115,8 @@ async def update_votes_inner():
 
 async def update_score():
     await client.wait_until_ready()
-    # inf loop
-    while True:
+    # loop; about an hr
+    for i in range(60):
       try:
         await update_votes_inner()
         await asyncio.sleep(58)
