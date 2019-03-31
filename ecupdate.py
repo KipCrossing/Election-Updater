@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', None)
 DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
+DEV_ROOM = os.environ.get('DISCORD_DEV_ROOM', '560305304424808478')
 client = commands.Bot(command_prefix = '!')
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
@@ -115,12 +116,14 @@ async def update_votes_inner():
 
 async def update_score():
     await client.wait_until_ready()
+    await client.send_message(discord.Object(DEV_ROOM), f"Election Updater Bot started")
     # loop; about an hr
     for i in range(60):
       try:
         await update_votes_inner()
         await asyncio.sleep(58)
       except (KeyboardInterrupt, SystemExit) as e:
+        await client.send_message(discord.Object(DEV_ROOM), f"E.U. Bot got keyboard interrupt / exit signal")
         break
         raise e
       except Exception as e:
@@ -128,8 +131,10 @@ async def update_score():
         print(e)
         import traceback
         traceback.print_tb(e.__traceback__)
+        await client.send_message(discord.Object(DEV_ROOM), f"E.U. bot exception: {str(e)}")
         print("\n\nwaiting 10s and trying again")
         await asyncio.sleep(10)
+    await client.close()
 
 
 @client.command()
