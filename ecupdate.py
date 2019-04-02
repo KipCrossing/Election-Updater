@@ -15,7 +15,8 @@ from bs4 import BeautifulSoup
 
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', None)
 DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
-DEV_ROOM = os.environ.get('DISCORD_DEV_ROOM', '560305304424808478')
+#Max can you add the new channel ID to your DISCORD_DEV_ROOM
+DEV_ROOM = '562605716591083560' #= os.environ.get('DISCORD_DEV_ROOM', '562605716591083560')
 client = commands.Bot(command_prefix = '!')
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
