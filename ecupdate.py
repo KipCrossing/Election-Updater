@@ -117,11 +117,11 @@ async def update_votes_inner():
 async def update_score():
     await client.wait_until_ready()
     await client.send_message(discord.Object(DEV_ROOM), f"Election Updater Bot started")
-    # loop; 10m
-    for i in range(10):
+    # loop; 60m
+    for i in range(60):
       try:
         await update_votes_inner()
-        await asyncio.sleep(50)
+        await asyncio.sleep(55)
       except (KeyboardInterrupt, SystemExit) as e:
         await client.send_message(discord.Object(DEV_ROOM), f"E.U. Bot got keyboard interrupt / exit signal")
         break
@@ -135,7 +135,7 @@ async def update_score():
         print("\n\nwaiting 10s and trying again")
         await asyncio.sleep(10)
     await client.close()
-    sys.exit(1)
+    sys.exit(0)
 
 
 @client.command()
