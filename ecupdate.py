@@ -22,6 +22,10 @@ client = commands.Bot(command_prefix = '!')
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
 
+opts = Options()
+opts.add_argument('--headless')
+driver = webdriver.Firefox(executable_path=f'{os.environ.get("PWD")}/geckodriver')
+
 
 def get_stored_value(name, default=None):
   fname = f'__{name}__.txt'
@@ -47,9 +51,6 @@ def set_stored_value(name, val, subdir=None):
 async def update_votes_inner():
     stars = defaultdict(lambda: '')
 
-    opts = Options()
-    opts.add_argument('--headless')
-    driver = webdriver.Firefox(executable_path=f'{os.environ.get("PWD")}/geckodriver')
     driver.get('https://vtr.elections.nsw.gov.au/lc/state/cc/fp_summary')
 
     # let it load; todo: does selenium have an await page load function?
@@ -59,9 +60,6 @@ async def update_votes_inner():
     # html of page; after it's been modified by JS
     vtr_html = driver.page_source
     vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
-
-    # don't need this anymore
-    driver.close()
 
     report_content = vtr_soup.find(id="ReportContent")
     # p tags in report_content
@@ -141,5 +139,11 @@ async def nswcount():
         await client.say(f.read())
 
 
-client.loop.create_task(update_score())
-client.run(TOKEN)
+try:
+  client.loop.create_task(update_score())
+  client.run(TOKEN)
+finally:
+  asyncio.run(client.close())
+  #driver.close()
+  driver.exit()
+
