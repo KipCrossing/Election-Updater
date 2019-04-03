@@ -32,6 +32,9 @@ check_for_updates &
 # needed for headless FF driver
 export MOZ_HEADLESS="1"
 
+which python3.6 > /dev/null && PYEXE="python3.6" || PYEXE="python3"
+
 while sleep 1; do
-  python3 ecupdate.py || exit 1
+  $PYEXE ecupdate.py || exit 1
 done
+
