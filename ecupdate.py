@@ -19,10 +19,6 @@ DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
 #Max can you add the new channel ID to your DISCORD_DEV_ROOM
 DEV_ROOM = os.environ.get('DISCORD_DEV_ROOM', '562605716591083560')
 client = commands.Bot(command_prefix = '!')
-try:
-    client.remove_command("help")
-except Exception as e:
-    print(e)
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
 
@@ -144,10 +140,6 @@ async def nswcount():
     with open('__last_discord_msg__.txt', 'r') as f:
         await client.say(f.read())
 
-@client.command()
-async def help():
-    msg = "**!nswcount** \nShows the current data for the nsw election count."
-    await client.say(msg)
 
 client.loop.create_task(update_score())
 client.run(TOKEN)
