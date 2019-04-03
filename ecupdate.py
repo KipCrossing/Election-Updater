@@ -19,7 +19,10 @@ DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
 #Max can you add the new channel ID to your DISCORD_DEV_ROOM
 DEV_ROOM = os.environ.get('DISCORD_DEV_ROOM', '562605716591083560')
 client = commands.Bot(command_prefix = '!')
-client.remove_command("help")
+try:
+    client.remove_command("help")
+except Exception as e:
+    print(e)
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
 
