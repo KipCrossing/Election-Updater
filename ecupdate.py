@@ -9,6 +9,7 @@ from collections import defaultdict
 import discord
 from discord.ext import commands
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -16,7 +17,7 @@ from bs4 import BeautifulSoup
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', None)
 DISCORD_ROOM = os.environ.get('DISCORD_ROOM', '560067038349885441')
 #Max can you add the new channel ID to your DISCORD_DEV_ROOM
-DEV_ROOM = '562605716591083560' #= os.environ.get('DISCORD_DEV_ROOM', '562605716591083560')
+DEV_ROOM = os.environ.get('DISCORD_DEV_ROOM', '562605716591083560')
 client = commands.Bot(command_prefix = '!')
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
@@ -46,19 +47,14 @@ def set_stored_value(name, val, subdir=None):
 async def update_votes_inner():
     stars = defaultdict(lambda: '')
 
-    chrome_opts = webdriver.ChromeOptions()
-    chrome_opts.add_argument('--headless')
-    chrome_opts.add_argument('--no-sandbox')
-    chrome_opts.add_argument('--disable-dev-shm-usage')
-    try:
-        driver = webdriver.Chrome(chrome_options=chrome_opts)
-    except Exception as e:
-        driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver', chrome_options=chrome_opts)
+    opts = Options()
+    opts.add_argument('--headless')
+    driver = webdriver.Firefox(executable_path=f'{os.environ.get("PWD")}/geckodriver')
     driver.get('https://vtr.elections.nsw.gov.au/lc/state/cc/fp_summary')
 
     # let it load; todo: does selenium have an await page load function?
     # let it be a long wait because better than failing
-    time.sleep(2)
+    await asyncio.sleep(5)
 
     # html of page; after it's been modified by JS
     vtr_html = driver.page_source
