@@ -149,7 +149,7 @@ try:
   client.loop.create_task(update_score())
   client.run(TOKEN)
 finally:
-  asyncio.get_event_loop().run_until_complete(client.close())
+  asyncio.new_event_loop().run_until_complete(client.close())
   #driver.close()
   driver.exit()
 
