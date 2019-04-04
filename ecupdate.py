@@ -59,9 +59,12 @@ async def update_votes_inner():
       # loop awaits page load
       await asyncio.sleep(1)
       # html of page; after it's been modified by JS
-      vtr_html = driver.page_source
-      vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
-
+      try:
+        vtr_html = driver.page_source
+        vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
+      except Exception as e:
+        print(f'got exception getting page source: {str(e)}')
+        continue
       report_content = vtr_soup.find(id="ReportContent")
     # p tags in report_content
     report_ps = report_content.find_all("p")
