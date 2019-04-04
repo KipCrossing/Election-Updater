@@ -6,10 +6,11 @@ import time
 import sys
 from collections import defaultdict
 
+import aiohttp
 import discord
 from discord.ext import commands
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
+#from selenium import webdriver
+#from selenium.webdriver.firefox.options import Options
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -22,9 +23,17 @@ client = commands.Bot(command_prefix = '!')
 star_emoji = '🌟'
 print(f'loaded client {star_emoji}')
 
-opts = Options()
-opts.add_argument('--headless')
-driver = webdriver.Firefox(executable_path=f'{os.environ.get("PWD")}/geckodriver')
+#opts = Options()
+#opts.add_argument('--headless')
+#driver = webdriver.Firefox(executable_path=f'{os.environ.get("PWD")}/geckodriver')
+
+
+async def get_req(url, is_json=False):
+  async with aiohttp.ClientSession() as session:
+    async with session.get(url) as response:
+      if is_json:
+        return await response.json()
+      return await response.text()
 
 
 def get_stored_value(name, default=None):
@@ -52,20 +61,13 @@ async def update_votes_inner():
     stars = defaultdict(lambda: '')
 
     driver_load_start = time.time()
-    driver.get('https://vtr.elections.nsw.gov.au/lc/state/cc/fp_summary')
 
-    report_content = None
-    while report_content is None and time.time() - driver_load_start < 30:
-      # loop awaits page load
-      await asyncio.sleep(1)
-      # html of page; after it's been modified by JS
-      try:
-        vtr_html = driver.page_source
-        vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
-      except Exception as e:
-        print(f'got exception getting page source: {str(e)}')
-        continue
-      report_content = vtr_soup.find(id="ReportContent")
+    vtr_meta_url = f'https://vtr.elections.nsw.gov.au/vtr.json?_={time.time() * 1000 // 1}'
+    vtr_json = (await get_req(vtr_meta_url, is_json=True))["azure"]
+    vtr_html_url = f'https://{vtr_json["id"]}.{vtr_json["type"]}.core.windows.net/{vtr_json["share"]}/lc/state/cc/fp_summary_report.html{vtr_json["storage"]}'
+    vtr_html = await get_req(vtr_html_url)
+    vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
+    report_content = vtr_soup.find(id="ReportContent")
     # p tags in report_content
     report_ps = report_content.find_all("p")
     last_updated = report_ps[0].string
@@ -136,7 +138,7 @@ async def update_score():
         await asyncio.sleep(10)
         print("await done")
     await client.close()
-    sys.exit(0)
+    asyncio.get_event_loop().stop()
 
 
 @client.command()
@@ -151,5 +153,5 @@ try:
 finally:
   asyncio.new_event_loop().run_until_complete(client.close())
   #driver.close()
-  driver.exit()
+  #driver.quit()
 
