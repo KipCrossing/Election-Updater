@@ -51,17 +51,18 @@ def set_stored_value(name, val, subdir=None):
 async def update_votes_inner():
     stars = defaultdict(lambda: '')
 
+    driver_load_start = time.time()
     driver.get('https://vtr.elections.nsw.gov.au/lc/state/cc/fp_summary')
 
-    # let it load; todo: does selenium have an await page load function?
-    # let it be a long wait because better than failing
-    await asyncio.sleep(5)
+    report_content = None
+    while report_content is None and time.time() - driver_load_start < 30:
+      # loop awaits page load
+      await asyncio.sleep(1)
+      # html of page; after it's been modified by JS
+      vtr_html = driver.page_source
+      vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
 
-    # html of page; after it's been modified by JS
-    vtr_html = driver.page_source
-    vtr_soup = BeautifulSoup(vtr_html, 'html.parser')
-
-    report_content = vtr_soup.find(id="ReportContent")
+      report_content = vtr_soup.find(id="ReportContent")
     # p tags in report_content
     report_ps = report_content.find_all("p")
     last_updated = report_ps[0].string
@@ -114,6 +115,7 @@ async def update_score():
     # await client.send_message(discord.Object(DEV_ROOM), f"Election Updater Bot started")
     # loop; 10m
     for i in range(10):
+      print("starting update_score attempt")
       try:
         await update_votes_inner()
         await asyncio.sleep(53)
@@ -129,6 +131,7 @@ async def update_score():
         await client.send_message(discord.Object(DEV_ROOM), f"E.U. bot exception: {str(e)}")
         print("\n\nwaiting 10s and trying again")
         await asyncio.sleep(10)
+        print("await done")
     await client.close()
     sys.exit(0)
 
