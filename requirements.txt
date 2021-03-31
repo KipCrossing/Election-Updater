@@ -4,7 +4,7 @@ beautifulsoup4==4.7.1
 chardet==3.0.4
 discord==0.16.12
 discord.py==0.16.12
-lxml==4.3.3
+lxml==4.6.3
 multidict==4.5.2
 numpy==1.16.2
 pandas==0.24.2
